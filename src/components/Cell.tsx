@@ -1,19 +1,36 @@
 import * as React from 'react';
 
 type CellProps = {
-  x: number;
-  y: number;
+  columnIndex: number;
   isMine: boolean;
-  neighbour: number;
+  neighbors: number;
   isRevealed: boolean;
   isEmpty: boolean;
   isFlagged: boolean;
+  rowIndex: number;
 };
 
 function Cell(props: CellProps) {
-  const { isEmpty, isFlagged, isMine, isRevealed, neighbour, x, y } = props;
+  const {
+    columnIndex,
+    isEmpty,
+    isFlagged,
+    isMine,
+    isRevealed,
+    neighbors,
+    rowIndex,
+  } = props;
 
-  return <div className="Cell">x</div>;
+  return (
+    <div
+      className="Cell"
+      data-column-index={columnIndex}
+      data-row-index={rowIndex}
+      data-neighbors={neighbors}
+    >
+      {isMine ? '💣' : neighbors || ''}
+    </div>
+  );
 }
 
 export default Cell;

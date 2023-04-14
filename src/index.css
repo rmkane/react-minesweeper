@@ -18,29 +18,37 @@
   box-sizing: border-box;
 }
 
-html, body {
+html, body, #root {
   width: 100%;
   height: 100%;
   margin: 0;
   padding: 0;
 }
 
-body {
+#root {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
 }
 
+.App {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
+
 .Board {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 1px;
 }
 
 .Row {
   display: flex;
-  gap: 0.5rem;
+  gap: 1px;
 }
 
 .Cell {
@@ -48,10 +56,21 @@ body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  border: thin solid red;
+  border: thin solid grey;
   height: 2rem;
   width: 2rem;
+  background: #b9b9b9;
 }
+
+[data-neighbors] { font-weight: bold; }
+[data-neighbors="1"] { color: #0000ff; }
+[data-neighbors="2"] { color: #008200; }
+[data-neighbors="3"] { color: #fe0000; }
+[data-neighbors="4"] { color: #000084; }
+[data-neighbors="5"] { color: #840000; }
+[data-neighbors="6"] { color: #008284; }
+[data-neighbors="7"] { color: #840084; }
+[data-neighbors="8"] { color: #757575; }
 
 @media (prefers-color-scheme: light) {
   :root {

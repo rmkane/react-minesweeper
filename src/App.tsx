@@ -11,7 +11,9 @@ function App() {
     <div className="App">
       <select
         value={difficulty}
-        onChange={({ target: { value } }) => setDifficulty(value)}
+        onChange={({ target: { value } }) => {
+          setDifficulty(value as Difficulty);
+        }}
       >
         <option value="beginner">Beginner</option>
         <option value="intermediate">Intermediate</option>
