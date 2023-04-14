@@ -41,5 +41,3 @@ function Minesweeper(props: MinsweeperProps) {
 }
 
 export default Minesweeper;
-
-export type { Difficulty };

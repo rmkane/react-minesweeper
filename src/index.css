@@ -75,6 +75,14 @@ body,
   background: #b9b9b9;
 }
 
+.GridCellView[data-is-unrevealed] {
+  background: #777;
+}
+
+.GridCellView[data-is-unrevealed]:hover {
+  cursor: pointer;
+}
+
 [data-neighbors] {
   font-weight: bold;
 }

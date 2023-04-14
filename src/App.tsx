@@ -1,9 +1,12 @@
 import * as React from 'react';
 
-import Minesweeper, { Difficulty } from './components/Minesweeper';
+import Minesweeper from './components/Minesweeper';
+import { Difficulty } from './utils/logic';
 
 function App() {
-  const [difficulty, setDifficulty] = React.useState<Difficulty>('beginner');
+  const [difficulty, setDifficulty] = React.useState<Difficulty>(
+    Difficulty.BEGINNER,
+  );
 
   return (
     <div className="App">

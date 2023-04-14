@@ -20,13 +20,14 @@ type Minefield = {
 
 type Cell = {
   columnIndex: number;
+  index?: number;
   rowIndex: number;
 };
 
 type Stateful = {
   isEmpty: boolean;
   isFlagged: boolean;
-  isMine: boolean;
+  isMined: boolean;
   isRevealed: boolean;
 };
 
@@ -61,8 +62,9 @@ function initialCellState(rows: number, columns: number): StatefulMatrix {
   return Array.from({ length: rows }, (_a, rowIndex) =>
     Array.from({ length: columns }, (_b, columnIndex) => ({
       columnIndex,
-      isMine: false,
+      isMined: false,
       neighbors: 0,
+      index: rowIndex * rows + columnIndex,
       isRevealed: false,
       isEmpty: false,
       isFlagged: false,
@@ -93,9 +95,9 @@ function plantMines(data: StatefulMatrix, mineCount: number): StatefulMatrix {
   while (minesPlanted < mineCount) {
     randomY = getRandomNumber(data.length - 1);
     randomX = getRandomNumber(data[0].length - 1);
-    if (!data[randomY][randomX].isMine) {
+    if (!data[randomY][randomX].isMined) {
       // eslint-disable-next-line no-param-reassign
-      data[randomY][randomX].isMine = true;
+      data[randomY][randomX].isMined = true;
       minesPlanted += 1;
     }
   }
@@ -155,7 +157,7 @@ function findNeigbors(
 function calcNeighbors(data: StatefulMatrix): StatefulMatrix {
   for (let i = 0; i < data.length; i += 1) {
     for (let j = 0; j < data[i].length; j += 1) {
-      if (data[i][j].isMine !== true) {
+      if (!data[i][j].isMined) {
         let neighboringMines = 0;
         const neigbors: StatefulRow = findNeigbors(
           data[i][j].rowIndex,
@@ -163,7 +165,7 @@ function calcNeighbors(data: StatefulMatrix): StatefulMatrix {
           data,
         );
         neigbors.forEach((neigbor: StatefulCell) => {
-          if (neigbor.isMine) {
+          if (neigbor.isMined) {
             neighboringMines += 1;
           }
         });
