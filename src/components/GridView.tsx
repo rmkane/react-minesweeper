@@ -1,7 +1,12 @@
 import * as React from 'react';
 
 import { MouseButton } from '../services/constants';
-import { calcNeighbors, initialCellState, plantMines } from '../services/logic';
+import {
+  calcNeighbors,
+  cloneData,
+  initialCellState,
+  plantMines,
+} from '../services/logic';
 import {
   MinefieldGrid,
   StatefulCell,
@@ -30,9 +35,7 @@ function GridView(props: GridViewProps) {
     const columnIndex = parseInt(target.getAttribute('data-column-index')!, 10);
 
     setData((currentData) => {
-      const updatedData: StatefulMatrix = currentData.map((row) =>
-        row.map((cell) => ({ ...cell })),
-      );
+      const updatedData: StatefulMatrix = cloneData(currentData);
       const cell: StatefulCell = updatedData[rowIndex][columnIndex];
 
       if (!cell.isRevealed) {

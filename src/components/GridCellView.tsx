@@ -27,7 +27,7 @@ function UnrevealedCell(props: UnrevealedCellProps) {
       data-row-index={rowIndex}
       onMouseDown={onClick}
       onContextMenu={onContextMenu}
-      onKeyDown={(e) => {
+      onKeyDown={() => {
         // Do nothing...
       }}
       role="button"
@@ -50,7 +50,7 @@ function FlaggedCell(props: FlaggedCellProps) {
       data-is-unrevealed
       onMouseDown={onClick}
       onContextMenu={onContextMenu}
-      onKeyDown={(e) => {
+      onKeyDown={() => {
         // Do nothing...
       }}
       role="button"

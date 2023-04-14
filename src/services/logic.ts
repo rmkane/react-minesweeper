@@ -1,4 +1,3 @@
-import { Difficulty } from './constants';
 import {
   MinefieldGrid,
   StatefulCell,
@@ -23,6 +22,10 @@ const expertState: MinefieldGrid = {
   columns: 16,
   mineCount: 40,
 };
+
+function cloneData(data: StatefulMatrix): StatefulMatrix {
+  return data.map((row) => row.map((cell) => ({ ...cell })));
+}
 
 function initialCellState(rows: number, columns: number): StatefulMatrix {
   return Array.from({ length: rows }, (_a, rowIndex) =>
@@ -148,11 +151,11 @@ function calcNeighbors(data: StatefulMatrix): StatefulMatrix {
 }
 
 export {
-  Difficulty,
   beginnerState,
   intermediateState,
   expertState,
   calcNeighbors,
+  cloneData,
   initialCellState,
   plantMines,
 };
