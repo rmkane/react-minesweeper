@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { Cell, HasNeighbors, StatefulCell } from '../utils/logic';
+import { Cell, HasNeighbors, StatefulCell } from '../services/types';
 
 type Clickable = {
   onClick: React.MouseEventHandler<HTMLDivElement>;

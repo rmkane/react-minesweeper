@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import Minesweeper from './components/Minesweeper';
-import { Difficulty } from './utils/logic';
+import { Difficulty } from './services/constants';
 
 function App() {
   const [difficulty, setDifficulty] = React.useState<Difficulty>(

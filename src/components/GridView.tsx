@@ -1,21 +1,14 @@
 import * as React from 'react';
 
+import { MouseButton } from '../services/constants';
+import { calcNeighbors, initialCellState, plantMines } from '../services/logic';
 import {
-  calcNeighbors,
-  initialCellState,
   MinefieldGrid,
-  plantMines,
   StatefulCell,
   StatefulMatrix,
   StatefulRow,
-} from '../utils/logic';
+} from '../services/types';
 import GridCellView from './GridCellView';
-
-enum MouseButton {
-  LEFT,
-  MIDDLE,
-  RIGHT,
-}
 
 type GridViewProps = MinefieldGrid;
 

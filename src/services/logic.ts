@@ -1,44 +1,10 @@
-enum Difficulty {
-  BEGINNER = 'beginner',
-  INTERMEDIATE = 'intermediate',
-  EXPERT = 'expert',
-}
-
-type GameDifficulty =
-  | Difficulty.BEGINNER
-  | Difficulty.INTERMEDIATE
-  | Difficulty.EXPERT;
-
-type Grid = {
-  rows: number;
-  columns: number;
-};
-
-type Minefield = {
-  mineCount: number;
-};
-
-type Cell = {
-  columnIndex: number;
-  index?: number;
-  rowIndex: number;
-};
-
-type Stateful = {
-  isEmpty: boolean;
-  isFlagged: boolean;
-  isMined: boolean;
-  isRevealed: boolean;
-};
-
-type HasNeighbors = {
-  neighbors: number;
-};
-
-type MinefieldGrid = Grid & Minefield;
-type StatefulCell = Cell & HasNeighbors & Stateful;
-type StatefulRow = StatefulCell[];
-type StatefulMatrix = StatefulRow[];
+import { Difficulty } from './constants';
+import {
+  MinefieldGrid,
+  StatefulCell,
+  StatefulMatrix,
+  StatefulRow,
+} from './types';
 
 const beginnerState: MinefieldGrid = {
   rows: 8,
@@ -189,17 +155,4 @@ export {
   calcNeighbors,
   initialCellState,
   plantMines,
-};
-
-export type {
-  Cell,
-  GameDifficulty,
-  Grid,
-  HasNeighbors,
-  Minefield,
-  MinefieldGrid,
-  Stateful,
-  StatefulCell,
-  StatefulMatrix,
-  StatefulRow,
 };

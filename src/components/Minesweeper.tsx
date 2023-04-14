@@ -1,12 +1,12 @@
 import * as React from 'react';
 
+import { Difficulty } from '../services/constants';
 import {
   beginnerState,
-  Difficulty,
   expertState,
-  GameDifficulty,
   intermediateState,
-} from '../utils/logic';
+} from '../services/logic';
+import { GameDifficulty } from '../services/types';
 import GridView, { GridViewProps } from './GridView';
 
 type MinsweeperProps = {
