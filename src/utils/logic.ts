@@ -1,16 +1,63 @@
-import * as React from 'react';
+enum Difficulty {
+  BEGINNER = 'beginner',
+  INTERMEDIATE = 'intermediate',
+  EXPERT = 'expert',
+}
 
-import Cell, { CellProps } from './Cell';
+type GameDifficulty =
+  | Difficulty.BEGINNER
+  | Difficulty.INTERMEDIATE
+  | Difficulty.EXPERT;
 
-type BoardProps = {
+type Grid = {
   rows: number;
   columns: number;
+};
+
+type Minefield = {
   mineCount: number;
 };
 
-type Cells = CellProps[][];
+type Cell = {
+  columnIndex: number;
+  rowIndex: number;
+};
 
-function initialCellState(rows: number, columns: number): Cells {
+type Stateful = {
+  isEmpty: boolean;
+  isFlagged: boolean;
+  isMine: boolean;
+  isRevealed: boolean;
+};
+
+type HasNeighbors = {
+  neighbors: number;
+};
+
+type MinefieldGrid = Grid & Minefield;
+type StatefulCell = Cell & HasNeighbors & Stateful;
+type StatefulRow = StatefulCell[];
+type StatefulMatrix = StatefulRow[];
+
+const beginnerState: MinefieldGrid = {
+  rows: 8,
+  columns: 8,
+  mineCount: 10,
+};
+
+const intermediateState: MinefieldGrid = {
+  rows: 12,
+  columns: 12,
+  mineCount: 20,
+};
+
+const expertState: MinefieldGrid = {
+  rows: 16,
+  columns: 16,
+  mineCount: 40,
+};
+
+function initialCellState(rows: number, columns: number): StatefulMatrix {
   return Array.from({ length: rows }, (_a, rowIndex) =>
     Array.from({ length: columns }, (_b, columnIndex) => ({
       columnIndex,
@@ -38,7 +85,7 @@ function getRandomNumber(min: number, max?: number): number {
   return Math.floor(min + random() * (max - min + 1));
 }
 
-function plantMines(data: Cells, mineCount: number): Cells {
+function plantMines(data: StatefulMatrix, mineCount: number): StatefulMatrix {
   let randomX: number;
   let randomY: number;
   let minesPlanted = 0;
@@ -55,19 +102,19 @@ function plantMines(data: Cells, mineCount: number): Cells {
   return data;
 }
 
-function traverseBoard(
+function findNeigbors(
   rowIndex: number,
   columnIndex: number,
-  data: Cells,
-): CellProps[] {
-  const el: CellProps[] = [];
+  data: StatefulMatrix,
+): StatefulRow {
+  const el: StatefulRow = [];
 
-  // up
+  // top
   if (rowIndex > 0) {
     el.push(data[rowIndex - 1][columnIndex]);
   }
 
-  // down
+  // bottom
   if (rowIndex < data.length - 1) {
     el.push(data[rowIndex + 1][columnIndex]);
   }
@@ -82,22 +129,22 @@ function traverseBoard(
     el.push(data[rowIndex][columnIndex + 1]);
   }
 
-  // top left
+  // top-left
   if (rowIndex > 0 && columnIndex > 0) {
     el.push(data[rowIndex - 1][columnIndex - 1]);
   }
 
-  // top right
+  // top-right
   if (rowIndex > 0 && columnIndex < data[rowIndex].length - 1) {
     el.push(data[rowIndex - 1][columnIndex + 1]);
   }
 
-  // bottom left
+  // bottom-left
   if (rowIndex < data.length - 1 && columnIndex > 0) {
     el.push(data[rowIndex + 1][columnIndex - 1]);
   }
 
-  // bottom right
+  // bottom-right
   if (rowIndex < data.length - 1 && columnIndex < data[rowIndex].length - 1) {
     el.push(data[rowIndex + 1][columnIndex + 1]);
   }
@@ -105,18 +152,18 @@ function traverseBoard(
   return el;
 }
 
-function calcNeighbors(data: Cells): Cells {
+function calcNeighbors(data: StatefulMatrix): StatefulMatrix {
   for (let i = 0; i < data.length; i += 1) {
     for (let j = 0; j < data[i].length; j += 1) {
       if (data[i][j].isMine !== true) {
         let neighboringMines = 0;
-        const area: CellProps[] = traverseBoard(
+        const neigbors: StatefulRow = findNeigbors(
           data[i][j].rowIndex,
           data[i][j].columnIndex,
           data,
         );
-        area.forEach((value: CellProps) => {
-          if (value.isMine) {
+        neigbors.forEach((neigbor: StatefulCell) => {
+          if (neigbor.isMine) {
             neighboringMines += 1;
           }
         });
@@ -132,39 +179,25 @@ function calcNeighbors(data: Cells): Cells {
   return data;
 }
 
-function Board(props: BoardProps) {
-  const { columns, mineCount, rows } = props;
+export {
+  Difficulty,
+  beginnerState,
+  intermediateState,
+  expertState,
+  calcNeighbors,
+  initialCellState,
+  plantMines,
+};
 
-  const [data, setData] = React.useState<Cells>([]);
-
-  React.useEffect(() => {
-    let initialData: Cells = initialCellState(rows, columns);
-    initialData = plantMines(initialData, mineCount);
-    initialData = calcNeighbors(initialData);
-    setData(initialData);
-  }, [columns, mineCount, rows]);
-
-  return (
-    <div className="Board">
-      {data.map((row: CellProps[]) => (
-        <div className="Row">
-          {row.map((cell: CellProps) => (
-            <Cell
-              columnIndex={cell.columnIndex}
-              isEmpty={cell.isEmpty}
-              isFlagged={cell.isFlagged}
-              isMine={cell.isMine}
-              isRevealed={cell.isRevealed}
-              neighbors={cell.neighbors}
-              rowIndex={cell.rowIndex}
-            />
-          ))}
-        </div>
-      ))}
-    </div>
-  );
-}
-
-export default Board;
-
-export type { BoardProps };
+export type {
+  Cell,
+  GameDifficulty,
+  Grid,
+  HasNeighbors,
+  Minefield,
+  MinefieldGrid,
+  Stateful,
+  StatefulCell,
+  StatefulMatrix,
+  StatefulRow,
+};

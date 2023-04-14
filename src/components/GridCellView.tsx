@@ -1,16 +1,10 @@
 import * as React from 'react';
 
-type CellProps = {
-  columnIndex: number;
-  isMine: boolean;
-  neighbors: number;
-  isRevealed: boolean;
-  isEmpty: boolean;
-  isFlagged: boolean;
-  rowIndex: number;
-};
+import { StatefulCell } from '../utils/logic';
 
-function Cell(props: CellProps) {
+type CellProps = StatefulCell;
+
+function GridCellView(props: CellProps) {
   const {
     columnIndex,
     isEmpty,
@@ -23,7 +17,7 @@ function Cell(props: CellProps) {
 
   return (
     <div
-      className="Cell"
+      className="GridCellView"
       data-column-index={columnIndex}
       data-row-index={rowIndex}
       data-neighbors={neighbors}
@@ -33,6 +27,6 @@ function Cell(props: CellProps) {
   );
 }
 
-export default Cell;
+export default GridCellView;
 
 export type { CellProps };

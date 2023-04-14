@@ -1,8 +1,6 @@
 import * as React from 'react';
 
-import Minesweeper, { Difficulty } from './components/Minesweeper.js';
-
-import './index.css';
+import Minesweeper, { Difficulty } from './components/Minesweeper';
 
 function App() {
   const [difficulty, setDifficulty] = React.useState<Difficulty>('beginner');
