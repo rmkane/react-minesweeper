@@ -57,32 +57,6 @@ function getRandomNumber(min: number, max?: number): number {
   return Math.floor(min + random() * (max - min + 1));
 }
 
-function plantMines(
-  data: StatefulMatrix,
-  mineCount: number,
-  rowIndex: number,
-  columnIndex: number,
-): StatefulMatrix {
-  let randomColumnIndex: number;
-  let randomRowIndex: number;
-  let minesPlanted = 0;
-
-  while (minesPlanted < mineCount) {
-    randomRowIndex = getRandomNumber(data.length - 1);
-    randomColumnIndex = getRandomNumber(data[0].length - 1);
-    if (
-      randomRowIndex !== rowIndex &&
-      randomColumnIndex !== columnIndex &&
-      !data[randomRowIndex][randomColumnIndex].isMined
-    ) {
-      // eslint-disable-next-line no-param-reassign
-      data[randomRowIndex][randomColumnIndex].isMined = true;
-      minesPlanted += 1;
-    }
-  }
-  return data;
-}
-
 function isValidCell(
   rowIndex: number,
   columnIndex: number,
@@ -116,6 +90,36 @@ function findNeigbors(
   }
 
   return neighbors;
+}
+
+function isReserved(cell: StatefulCell, reservedCells: StatefulRow): boolean {
+  return reservedCells.some(
+    (reservedCell) =>
+      reservedCell.rowIndex === cell.rowIndex &&
+      reservedCell.columnIndex === cell.columnIndex,
+  );
+}
+
+function plantMines(
+  data: StatefulMatrix,
+  mineCount: number,
+  rowIndex: number,
+  columnIndex: number,
+): StatefulMatrix {
+  // Guard the first cell, and all its neighbors...
+  const reservedCells: StatefulRow = findNeigbors(rowIndex, columnIndex, data);
+  reservedCells.push(data[rowIndex][columnIndex]);
+  let minesPlanted = 0;
+  while (minesPlanted < mineCount) {
+    const randomRowIndex: number = getRandomNumber(data.length - 1);
+    const randomColumnIndex: number = getRandomNumber(data[0].length - 1);
+    const cell: StatefulCell = data[randomRowIndex][randomColumnIndex];
+    if (!cell.isMined && !isReserved(cell, reservedCells)) {
+      cell.isMined = true;
+      minesPlanted += 1;
+    }
+  }
+  return data;
 }
 
 function calculateNeigboringMineCount(
@@ -168,7 +172,10 @@ function revealEmpty(
 ): StatefulMatrix {
   const neighbors: StatefulRow = findNeigbors(rowIndex, columnIndex, data);
   neighbors.forEach((neighbor: StatefulCell) => {
-    if (!neighbor.isRevealed && !neighbor.isMined) {
+    if (
+      !neighbor.isRevealed &&
+      (neighbor.isEmpty || !neighbor.isMined || neighbor.neighbors > 0)
+    ) {
       // eslint-disable-next-line no-param-reassign
       data[rowIndex][columnIndex].isRevealed = true;
       if (neighbor.isEmpty) {
