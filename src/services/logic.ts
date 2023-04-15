@@ -3,23 +3,24 @@ import {
   StatefulCell,
   StatefulMatrix,
   StatefulRow,
+  UpdateState,
 } from './types';
 
 const beginnerState: MinefieldGrid = {
-  rows: 8,
-  columns: 8,
+  rowCount: 8,
+  columnCount: 8,
   mineCount: 10,
 };
 
 const intermediateState: MinefieldGrid = {
-  rows: 12,
-  columns: 12,
+  rowCount: 12,
+  columnCount: 12,
   mineCount: 20,
 };
 
 const expertState: MinefieldGrid = {
-  rows: 16,
-  columns: 16,
+  rowCount: 16,
+  columnCount: 16,
   mineCount: 40,
 };
 
@@ -56,21 +57,43 @@ function getRandomNumber(min: number, max?: number): number {
   return Math.floor(min + random() * (max - min + 1));
 }
 
-function plantMines(data: StatefulMatrix, mineCount: number): StatefulMatrix {
-  let randomX: number;
-  let randomY: number;
+function plantMines(
+  data: StatefulMatrix,
+  mineCount: number,
+  rowIndex: number,
+  columnIndex: number,
+): StatefulMatrix {
+  let randomColumnIndex: number;
+  let randomRowIndex: number;
   let minesPlanted = 0;
 
   while (minesPlanted < mineCount) {
-    randomY = getRandomNumber(data.length - 1);
-    randomX = getRandomNumber(data[0].length - 1);
-    if (!data[randomY][randomX].isMined) {
+    randomRowIndex = getRandomNumber(data.length - 1);
+    randomColumnIndex = getRandomNumber(data[0].length - 1);
+    if (
+      randomRowIndex !== rowIndex &&
+      randomColumnIndex !== columnIndex &&
+      !data[randomRowIndex][randomColumnIndex].isMined
+    ) {
       // eslint-disable-next-line no-param-reassign
-      data[randomY][randomX].isMined = true;
+      data[randomRowIndex][randomColumnIndex].isMined = true;
       minesPlanted += 1;
     }
   }
   return data;
+}
+
+function isValidCell(
+  rowIndex: number,
+  columnIndex: number,
+  data: StatefulMatrix,
+): boolean {
+  return (
+    rowIndex > -1 &&
+    rowIndex < data.length &&
+    columnIndex > -1 &&
+    columnIndex < data[0].length
+  );
 }
 
 function findNeigbors(
@@ -78,76 +101,125 @@ function findNeigbors(
   columnIndex: number,
   data: StatefulMatrix,
 ): StatefulRow {
-  const el: StatefulRow = [];
+  const neighbors: StatefulRow = [];
 
-  // top
-  if (rowIndex > 0) {
-    el.push(data[rowIndex - 1][columnIndex]);
+  for (let rowOffset = -1; rowOffset <= 1; rowOffset += 1) {
+    for (let columnOffset = -1; columnOffset <= 1; columnOffset += 1) {
+      if (!(rowOffset === 0 && columnOffset === 0)) {
+        const nextRowIndex = rowIndex + rowOffset;
+        const nextColumnIndex = columnIndex + columnOffset;
+        if (isValidCell(nextRowIndex, nextColumnIndex, data)) {
+          neighbors.push(data[nextRowIndex][nextColumnIndex]);
+        }
+      }
+    }
   }
 
-  // bottom
-  if (rowIndex < data.length - 1) {
-    el.push(data[rowIndex + 1][columnIndex]);
-  }
+  return neighbors;
+}
 
-  // left
-  if (columnIndex > 0) {
-    el.push(data[rowIndex][columnIndex - 1]);
-  }
-
-  // right
-  if (columnIndex < data[rowIndex].length - 1) {
-    el.push(data[rowIndex][columnIndex + 1]);
-  }
-
-  // top-left
-  if (rowIndex > 0 && columnIndex > 0) {
-    el.push(data[rowIndex - 1][columnIndex - 1]);
-  }
-
-  // top-right
-  if (rowIndex > 0 && columnIndex < data[rowIndex].length - 1) {
-    el.push(data[rowIndex - 1][columnIndex + 1]);
-  }
-
-  // bottom-left
-  if (rowIndex < data.length - 1 && columnIndex > 0) {
-    el.push(data[rowIndex + 1][columnIndex - 1]);
-  }
-
-  // bottom-right
-  if (rowIndex < data.length - 1 && columnIndex < data[rowIndex].length - 1) {
-    el.push(data[rowIndex + 1][columnIndex + 1]);
-  }
-
-  return el;
+function calculateNeigboringMineCount(
+  cell: StatefulCell,
+  data: StatefulMatrix,
+): number {
+  const neigbors: StatefulRow = findNeigbors(
+    cell.rowIndex,
+    cell.columnIndex,
+    data,
+  );
+  return neigbors.reduce(
+    (mineCount: number, neigbor: StatefulCell) =>
+      mineCount + (neigbor.isMined ? 1 : 0),
+    0,
+  );
 }
 
 function calcNeighbors(data: StatefulMatrix): StatefulMatrix {
+  let mineCount: number;
   for (let i = 0; i < data.length; i += 1) {
     for (let j = 0; j < data[i].length; j += 1) {
       if (!data[i][j].isMined) {
-        let neighboringMines = 0;
-        const neigbors: StatefulRow = findNeigbors(
-          data[i][j].rowIndex,
-          data[i][j].columnIndex,
-          data,
-        );
-        neigbors.forEach((neigbor: StatefulCell) => {
-          if (neigbor.isMined) {
-            neighboringMines += 1;
-          }
-        });
-        if (neighboringMines === 0) {
+        mineCount = calculateNeigboringMineCount(data[i][j], data);
+        if (mineCount === 0) {
           // eslint-disable-next-line no-param-reassign
           data[i][j].isEmpty = true;
         }
         // eslint-disable-next-line no-param-reassign
-        data[i][j].neighbors = neighboringMines;
+        data[i][j].neighbors = mineCount;
       }
     }
   }
   return data;
+}
+
+function revealAll(data: StatefulMatrix): StatefulMatrix {
+  return data.map(
+    (row: StatefulRow): StatefulRow =>
+      row.map(
+        (cell: StatefulCell): StatefulCell => ({ ...cell, isRevealed: true }),
+      ),
+  );
+}
+
+function revealEmpty(
+  rowIndex: number,
+  columnIndex: number,
+  data: StatefulMatrix,
+): StatefulMatrix {
+  const neighbors: StatefulRow = findNeigbors(rowIndex, columnIndex, data);
+  neighbors.forEach((neighbor: StatefulCell) => {
+    if (!neighbor.isRevealed && !neighbor.isMined) {
+      // eslint-disable-next-line no-param-reassign
+      data[rowIndex][columnIndex].isRevealed = true;
+      if (neighbor.isEmpty) {
+        revealEmpty(neighbor.rowIndex, neighbor.columnIndex, data);
+      }
+    }
+  });
+  return data;
+}
+
+function handleReveal(state: UpdateState): UpdateState {
+  if (!state.cell.isRevealed) {
+    // eslint-disable-next-line no-param-reassign
+    state.cell.isRevealed = true;
+
+    if (state.cell.isMined) {
+      // eslint-disable-next-line no-param-reassign
+      state.data = revealAll(state.data);
+    }
+    if (state.cell.isEmpty) {
+      // eslint-disable-next-line no-param-reassign
+      state.data = revealEmpty(state.rowIndex, state.columnIndex, state.data);
+    }
+  }
+  return state;
+}
+
+function processCellAndUpdateData(state: UpdateState): UpdateState {
+  if (state.cell.isRevealed) {
+    return state;
+  }
+  if (state.isFlagging && state.flagsUsed !== state.mineCount) {
+    // eslint-disable-next-line no-param-reassign
+    state.cell.isFlagged = !state.cell.isFlagged;
+  }
+  if (state.isRevealing) {
+    return handleReveal(state);
+  }
+  return state;
+}
+
+function countFlags(data: StatefulMatrix) {
+  let count = 0;
+  data.forEach((row) =>
+    row.forEach((cell) => {
+      if (cell.isFlagged) {
+        count += 1;
+      }
+    }),
+  );
+  return count;
 }
 
 export {
@@ -156,6 +228,9 @@ export {
   expertState,
   calcNeighbors,
   cloneData,
+  countFlags,
+  handleReveal,
   initialCellState,
   plantMines,
+  processCellAndUpdateData,
 };

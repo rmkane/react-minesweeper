@@ -1,11 +1,6 @@
 import * as React from 'react';
 
-import { Cell, HasNeighbors, StatefulCell } from '../services/types';
-
-type Clickable = {
-  onClick: React.MouseEventHandler<HTMLDivElement>;
-  onContextMenu: React.MouseEventHandler<HTMLDivElement>;
-};
+import { Cell, Clickable, HasNeighbors, StatefulCell } from '../services/types';
 
 type CellProps = Clickable & StatefulCell;
 
@@ -116,9 +111,6 @@ function GridCellView(props: CellProps) {
     neighbors,
     rowIndex,
   } = props;
-
-  // eslint-disable-next-line no-console
-  console.log(`Cell at index: ${index} is flagged? ${isFlagged}`);
 
   if (isFlagged) {
     return (

@@ -1,68 +1,19 @@
 import * as React from 'react';
 
-import { MouseButton } from '../services/constants';
 import {
-  calcNeighbors,
-  cloneData,
-  initialCellState,
-  plantMines,
-} from '../services/logic';
-import {
-  MinefieldGrid,
+  Clickable,
   StatefulCell,
   StatefulMatrix,
   StatefulRow,
 } from '../services/types';
 import GridCellView from './GridCellView';
 
-type GridViewProps = MinefieldGrid;
+type GridViewProps = {
+  data: StatefulMatrix;
+} & Clickable;
 
 function GridView(props: GridViewProps) {
-  const { columns, mineCount, rows } = props;
-
-  const [data, setData] = React.useState<StatefulMatrix>([]);
-
-  React.useEffect(() => {
-    let initialData: StatefulMatrix = initialCellState(rows, columns);
-    initialData = plantMines(initialData, mineCount);
-    initialData = calcNeighbors(initialData);
-    setData(initialData);
-  }, [columns, mineCount, rows]);
-
-  const onClick = React.useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    const target: HTMLElement = e.target as HTMLDivElement;
-    const rowIndex = parseInt(target.getAttribute('data-row-index')!, 10);
-    const columnIndex = parseInt(target.getAttribute('data-column-index')!, 10);
-
-    setData((currentData) => {
-      const updatedData: StatefulMatrix = cloneData(currentData);
-      const cell: StatefulCell = updatedData[rowIndex][columnIndex];
-
-      if (!cell.isRevealed) {
-        switch (e.button) {
-          case MouseButton.LEFT:
-            if (!cell.isFlagged) {
-              cell.isRevealed = true;
-            }
-            break;
-          case MouseButton.RIGHT:
-            cell.isFlagged = !cell.isFlagged;
-            break;
-          default:
-          // Do nothing...
-        }
-      }
-
-      return updatedData;
-    });
-  }, []);
-
-  const onContextMenu = React.useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      e.preventDefault();
-    },
-    [],
-  );
+  const { data, onClick, onContextMenu } = props;
 
   return (
     <div className="Board">

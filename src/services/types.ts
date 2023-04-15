@@ -6,8 +6,8 @@ type GameDifficulty =
   | Difficulty.EXPERT;
 
 type Grid = {
-  rows: number;
-  columns: number;
+  rowCount: number;
+  columnCount: number;
 };
 
 type Minefield = {
@@ -16,8 +16,8 @@ type Minefield = {
 
 type Cell = {
   columnIndex: number;
-  index?: number;
   rowIndex: number;
+  index?: number;
 };
 
 type Stateful = {
@@ -31,14 +31,38 @@ type HasNeighbors = {
   neighbors: number;
 };
 
+type Clickable = {
+  onClick: React.MouseEventHandler<HTMLDivElement>;
+  onContextMenu: React.MouseEventHandler<HTMLDivElement>;
+};
+
 type MinefieldGrid = Grid & Minefield;
 type StatefulCell = Cell & HasNeighbors & Stateful;
 type StatefulRow = StatefulCell[];
 type StatefulMatrix = StatefulRow[];
 
+type GameState = MinefieldGrid & {
+  data: StatefulMatrix;
+  moves: number;
+  flagsUsed: number;
+};
+
+type ClickState = {
+  cell: StatefulCell;
+  rowIndex: number;
+  columnIndex: number;
+  isRevealing: boolean;
+  isFlagging: boolean;
+};
+
+type UpdateState = GameState & ClickState;
+
 export type {
   Cell,
+  Clickable,
+  ClickState,
   GameDifficulty,
+  GameState,
   Grid,
   HasNeighbors,
   Minefield,
@@ -47,4 +71,5 @@ export type {
   StatefulCell,
   StatefulMatrix,
   StatefulRow,
+  UpdateState,
 };
